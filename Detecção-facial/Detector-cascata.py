@@ -31,8 +31,8 @@ def Recortar_faces(caminho_imagem, caminho_cascata, caminho_output):
     name = caminho_imagem.split("\\")
     name = name[-1].split(".")[-2]
     ext = caminho_imagem.split(".")[-1]
+
     for (x, y, w, h) in faces:
         contador = contador+1
         Recortar_imagem = imagem[y:y+h, x:x+w]
-        
         cv.imwrite(os.path.join(caminho_output, f"Recortada_{name}_{contador}.{ext}"), Recortar_imagem)
