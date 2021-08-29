@@ -1,4 +1,5 @@
 
+
 import cv2 as cv
 import os
 
@@ -27,8 +28,8 @@ def Recortar_faces(caminho_imagem, caminho_cascata, caminho_output):
 
     #Exportar face
     contador = 0
-    name = caminho_imagem.split("\\")[-1]
-    name = name.split(".")[-2]
+    name = caminho_imagem.split("\\")
+    name = name[-1].split(".")[-2]
     ext = caminho_imagem.split(".")[-1]
     for (x, y, w, h) in faces:
         contador = contador+1
