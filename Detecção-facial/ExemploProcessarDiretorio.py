@@ -16,6 +16,3 @@ for diretorio, _, arquivos in os.walk(path_diretorio):
             caminho_imagem=path_imagem,\
             caminho_cascata=path_cascata,\
             caminho_output=path_output)
-
-
-
