@@ -24,8 +24,7 @@ def Recortar_faces(caminho_imagem, caminho_cascata, caminho_output):
     imagem_cinza = cv.cvtColor(imagem, cv.COLOR_BGR2GRAY)
 
     #Detectar faces:
-    faces = ia_detec_facial.detectMultiScale(imagem_cinza, 1.5, 3)
-
+    faces = ia_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=15, minSize=(100,100))
     #Exportar face
     contador = 0
     name = caminho_imagem.split("\\")
