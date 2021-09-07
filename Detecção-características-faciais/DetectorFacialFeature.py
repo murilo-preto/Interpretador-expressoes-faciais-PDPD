@@ -15,7 +15,7 @@ previsor_formato = dlib.shape_predictor(previsor_caminho)
 detector_facial = dlib.get_frontal_face_detector()
 
 #Carregar imagem:
-imagem_caminho = "Dataset\Recortada_00072_1.png"
+imagem_caminho = "exemplo.png"
 img = dlib.load_rgb_image(imagem_caminho)
 
 #Detectar rostos:
