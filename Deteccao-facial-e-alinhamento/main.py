@@ -56,11 +56,12 @@ for diretorio, _, arquivos in os.walk(caminho_entrada):
             for detection in dets:
                 faces.append(previsor_formato(img, detection))
 
-            #Exibir imagem
+            #Exportar imagem alinhada
             caminho_imagem_alinhada_saida = os.path.join(caminho_saida, f"{name}_{contador}_Alinhada.{ext}")
             images = dlib.get_face_chips(img, faces, size=1000)
             for image in images:
                 image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
                 cv.imwrite(caminho_imagem_alinhada_saida, image_rgb)
 
+            #Remover imagem recortada
             os.remove(caminho_imagem_recortada_saida)
