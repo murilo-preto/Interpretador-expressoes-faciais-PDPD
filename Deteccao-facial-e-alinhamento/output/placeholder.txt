@@ -1,0 +1,1 @@
+Aqui serão exportadas as imagens processadas, obtidas da pasta input
