@@ -3,7 +3,8 @@ import os
 import cv2 as cv
 import keyboard
 
-diretorio = "00000"
+subdiretorio = input("Insira o subdiretório desejado")
+diretorio = os.path.join("00000", subdiretorio)
 
 df = pd.DataFrame(columns = ["Imagem", "Situação"])
 
@@ -21,15 +22,15 @@ for diretorio, _, arquivos in os.walk(diretorio):
         while True:
             try:
                 if keyboard.is_pressed('k'):
-                    print('Mantendo imagem')
+                    print(f'Mantendo imagem {arquivo}')
                     df.loc[df.shape[0]] = [arquivo, 'Mantida']
                     break
                 elif keyboard.is_pressed('r'):
-                    print('Removendo imagem')
+                    print(f'Removendo imagem {arquivo}')
                     df.loc[df.shape[0]] = [arquivo, 'Removida']
                     os.remove(imagem)
                     break
             except:
                 break
 
-df.to_csv(path_or_buf="dataframe.csv")
+df.to_csv(path_or_buf=f"{subdiretorio}_dataframe.csv")
