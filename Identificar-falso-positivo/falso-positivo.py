@@ -3,7 +3,7 @@ import os
 import cv2 as cv
 import keyboard
 
-diretorio = "imagens"
+diretorio = "inserir_caminho_diretorio"
 
 df = pd.DataFrame(columns = ["Imagem", "Situação"])
 
@@ -23,10 +23,9 @@ for diretorio, _, arquivos in os.walk(diretorio):
                 if keyboard.is_pressed('c'):
                     print(f'Imagem correta: {arquivo}')
                     break
-                elif keyboard.is_pressed('p'):
+                elif keyboard.is_pressed('f'):
                     print(f'Falso positivo: {arquivo}')
                     df.loc[df.shape[0]] = [arquivo, 'Falso positivo']
-                    os.remove(imagem)
                     break
             except:
                 break
