@@ -1,11 +1,14 @@
 import os
 import cv2 as cv
 import dlib
+import pandas as pd
+
 
 #Variáveis
 caminho_entrada = "input"
 caminho_cascata = "haarcascade_frontalface_default.xml"
 caminho_saida = "output"
+lst = []
 
 #Identifica todos os arquivos no diretorio:
 for diretorio, _, arquivos in os.walk(caminho_entrada):
@@ -67,4 +70,9 @@ for diretorio, _, arquivos in os.walk(caminho_entrada):
                 #Remover imagem recortada
                 os.remove(caminho_imagem_recortada_saida)
         except:
-            print(f"Sistema de alinhamento facial não encontrou nenhuma face na imagem: {name}")
+            print(f"Exceção: {name}")
+            lst.append(arquivo)
+
+#Anotar exceções
+df = pd.DataFrame(lst, columns=["Excecoes"])
+df.to_csv(path_or_buf="excecoes.csv")
