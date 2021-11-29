@@ -23,45 +23,48 @@ for diretorio, _, arquivos in os.walk(caminho_entrada):
         imagem_cinza = cv.cvtColor(imagem, cv.COLOR_BGR2GRAY)
 
         #Detectar faces:
-        faces = ia_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=5, minSize=(500,500))
+        try:
+            faces = ia_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=5, minSize=(500,500))
 
-        #Configurar nome:
-        contador = 0
-        name = caminho_imagem.split("\\")
-        name = name[-1].split(".")[-2]
-        ext = caminho_imagem.split(".")[-1]
+            #Configurar nome:
+            contador = 0
+            name = caminho_imagem.split("\\")
+            name = name[-1].split(".")[-2]
+            ext = caminho_imagem.split(".")[-1]
 
-        #Recortar imagens detectadas
-        for (x, y, w, h) in faces:
-            contador = contador+1
-            imagem_recortada = imagem[y:y+h, x:x+w]
+            #Recortar imagens detectadas
+            for (x, y, w, h) in faces:
+                contador = contador+1
+                imagem_recortada = imagem[y:y+h, x:x+w]
 
-            #Escrever imagem para diretório
-            caminho_imagem_recortada_saida = os.path.join(caminho_saida, f"{name}_{contador}_Recortada.{ext}")
-            cv.imwrite(caminho_imagem_recortada_saida, imagem_recortada)
+                #Escrever imagem para diretório
+                caminho_imagem_recortada_saida = os.path.join(caminho_saida, f"{name}_{contador}_Recortada.{ext}")
+                cv.imwrite(caminho_imagem_recortada_saida, imagem_recortada)
 
-            #Importar previsor de formato:
-            previsor_caminho = "shape_predictor_5_face_landmarks.dat"
-            previsor_formato = dlib.shape_predictor(previsor_caminho)
+                #Importar previsor de formato:
+                previsor_caminho = "shape_predictor_5_face_landmarks.dat"
+                previsor_formato = dlib.shape_predictor(previsor_caminho)
 
-            #Importar detector facial
-            detector_facial = dlib.get_frontal_face_detector()
-            img = dlib.load_rgb_image(caminho_imagem_recortada_saida)
+                #Importar detector facial
+                detector_facial = dlib.get_frontal_face_detector()
+                img = dlib.load_rgb_image(caminho_imagem_recortada_saida)
 
-            #Detectar rostos:
-            dets = detector_facial(img, 1)
+                #Detectar rostos:
+                dets = detector_facial(img, 1)
 
-            #Prever formato facial:
-            faces = dlib.full_object_detections()
-            for detection in dets:
-                faces.append(previsor_formato(img, detection))
+                #Prever formato facial:
+                faces = dlib.full_object_detections()
+                for detection in dets:
+                    faces.append(previsor_formato(img, detection))
 
-            #Exportar imagem alinhada
-            caminho_imagem_alinhada_saida = os.path.join(caminho_saida, f"{name}_{contador}_Alinhada.{ext}")
-            images = dlib.get_face_chips(img, faces, size=1000)
-            for image in images:
-                image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-                cv.imwrite(caminho_imagem_alinhada_saida, image_rgb)
+                #Exportar imagem alinhada
+                caminho_imagem_alinhada_saida = os.path.join(caminho_saida, f"{name}.{ext}")
+                images = dlib.get_face_chips(img, faces, size=1000)
+                for image in images:
+                    image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+                    cv.imwrite(caminho_imagem_alinhada_saida, image_rgb)
 
-            #Remover imagem recortada
-            os.remove(caminho_imagem_recortada_saida)
+                #Remover imagem recortada
+                os.remove(caminho_imagem_recortada_saida)
+        except:
+            print(f"Ocorreu um erro ao detectar a face {name}")
