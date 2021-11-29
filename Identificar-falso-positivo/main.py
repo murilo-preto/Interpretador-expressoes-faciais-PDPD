@@ -22,14 +22,13 @@ for diretorio, _, arquivos in os.walk(diretorio):
             try:
                 if keyboard.is_pressed('c'):
                     print(f'Imagem correta: {arquivo}')
-                    df.loc[df.shape[0]] = [arquivo, 'Mantida']
                     break
                 elif keyboard.is_pressed('p'):
-                    print(f'Falso positivo {arquivo}')
-                    df.loc[df.shape[0]] = [arquivo, 'Mantida']
+                    print(f'Falso positivo: {arquivo}')
+                    df.loc[df.shape[0]] = [arquivo, 'Falso positivo']
                     os.remove(imagem)
                     break
             except:
                 break
 
-df.to_csv(path_or_buf=f"teste_dataframe.csv")
+df.to_csv(path_or_buf=f"falso_positivos.csv")
