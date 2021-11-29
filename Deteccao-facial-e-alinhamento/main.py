@@ -67,4 +67,4 @@ for diretorio, _, arquivos in os.walk(caminho_entrada):
                 #Remover imagem recortada
                 os.remove(caminho_imagem_recortada_saida)
         except:
-            print(f"Ocorreu um erro ao detectar a face {name}")
+            print(f"Sistema de alinhamento facial não encontrou nenhuma face na imagem: {name}")
