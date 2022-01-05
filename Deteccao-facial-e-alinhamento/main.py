@@ -4,7 +4,8 @@ import dlib
 import pandas as pd
 import time
 
-vizinhos_minimos = int(input())
+vizinhos_minimos = 6
+fator_escala = 1.1
 base_de_dados = "input-base-de-dados"
 output_recortada = "output-1-faces-recortadas"
 output_alinhada = "output-2-faces-alinhadas"
@@ -12,18 +13,21 @@ modelo_opencv = "haarcascade_frontalface_default.xml"
 modelo_dlib = "shape_predictor_5_face_landmarks.dat"
 lst = []
 
+tempo_inicial = time.perf_counter()
+
 #OPENCV
+opencv_detec_facial = cv.CascadeClassifier(modelo_opencv) #Ler modelo de detec opencv
+
 for diretorio, _, arquivos in os.walk(base_de_dados): #Identifica todos os arquivos no diretorio
     for arquivo in arquivos:
         caminho_imagem = (os.path.join(diretorio, arquivo))
         print(caminho_imagem)
         
-        ia_detec_facial = cv.CascadeClassifier(modelo_opencv) #Ler modelo de detec opencv
         imagem = cv.imread(caminho_imagem) #Ler arquivo de imagem
         imagem_cinza = cv.cvtColor(imagem, cv.COLOR_BGR2GRAY) #Converter imagem em tons de cinza
         
         #Detectar faces:
-        faces = ia_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=vizinhos_minimos, minSize=(500,500))
+        faces = opencv_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=fator_escala, minNeighbors=vizinhos_minimos, minSize=(500,500))
 
         #Configurar nome:
         contador = 0
@@ -40,6 +44,9 @@ for diretorio, _, arquivos in os.walk(base_de_dados): #Identifica todos os arqui
             cv.imwrite(filename=caminho_recortada_output, img=imagem_recortada)
 
 #DLIB
+previsor_formato = dlib.shape_predictor(modelo_dlib)
+detector_facial = dlib.get_frontal_face_detector()
+
 for diretorio, _, arquivos in os.walk(output_recortada): #Identifica todos os arquivos no diretorio
     for arquivo in arquivos:
         caminho_imagem = (os.path.join(diretorio, arquivo))
@@ -51,11 +58,8 @@ for diretorio, _, arquivos in os.walk(output_recortada): #Identifica todos os ar
         ext = caminho_imagem.split(".")[-1]
 
         try:
-            previsor_formato = dlib.shape_predictor(modelo_dlib)
-                
-            detector_facial = dlib.get_frontal_face_detector() #Importar detector facial
+            #Importar detector facial
             img = dlib.load_rgb_image(caminho_imagem)
-
             dets = detector_facial(img, 1) #Detectar rostos:
 
             faces = dlib.full_object_detections()  #Prever formato facial:
@@ -75,6 +79,8 @@ for diretorio, _, arquivos in os.walk(output_recortada): #Identifica todos os ar
 df = pd.DataFrame(lst, columns=["Excecoes"]) #Anotar exceções
 df.to_csv(path_or_buf="excecoes.csv")
 
-time = time.perf_counter()
+tempo_final = time.perf_counter()
+variacao_tempo = tempo_final-tempo_inicial
+
 with open('time-log.txt', 'w') as f:
-    f.write(str(time))
+    f.write(str(variacao_tempo))
