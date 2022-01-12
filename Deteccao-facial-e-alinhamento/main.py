@@ -1,33 +1,28 @@
-import os
 import cv2 as cv
 import dlib
-import pandas as pd
-import time
+from time import perf_counter
+import os
 
-#Variaveis
-vizinhos_minimos = 4
-fator_escala = 1.1
-base_de_dados = "input-base-de-dados"
-output_recortada = "output-1-faces-recortadas"
-output_alinhada = "output-2-faces-alinhadas"
+#Caminhos
+input = "input"
+output = "output"
 modelo_opencv = "haarcascade_frontalface_default.xml"
 modelo_dlib = "shape_predictor_5_face_landmarks.dat"
-lst = [] #Lista para log de excecoes
 
-tempo_inicial = time.perf_counter() #Tempo inicial
-
-#OPENCV
+#Modelos de deteccao
 opencv_detec_facial = cv.CascadeClassifier(modelo_opencv) #Importa o modelo de detecção opencv
-for diretorio, _, arquivos in os.walk(base_de_dados): #Identifica todos os arquivos no diretorio
+previsor_formato = dlib.shape_predictor(modelo_dlib) #Importa o previsor de formato dlib
+detector_facial = dlib.get_frontal_face_detector()
+
+for diretorio, _, arquivos in os.walk(input): #Identifica todos os arquivos no diretorio
     for arquivo in arquivos:
         caminho_imagem = (os.path.join(diretorio, arquivo))
-        print("Detec facial OpenCV", caminho_imagem)
-        
-        img = cv.imread(caminho_imagem)
-        img_cinza = cv.imread(caminho_imagem,0)
+
+        imagem_colorida = cv.imread(caminho_imagem)
+        imagem_cinza = cv.cvtColor(imagem_colorida, cv.COLOR_BGR2GRAY)
         
         #Detectar faces:
-        faces = opencv_detec_facial.detectMultiScale (img_cinza, scaleFactor=fator_escala, minNeighbors=vizinhos_minimos, minSize=(500,500))
+        faces = opencv_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=4, minSize=(500,500))
 
         #Configurar nome:
         contador = 0
@@ -37,52 +32,26 @@ for diretorio, _, arquivos in os.walk(base_de_dados): #Identifica todos os arqui
         
         for (x, y, w, h) in faces: #Recortar imagens detectadas
             contador = contador+1
-            imagem_recortada = img[y:y+h, x:x+w]
+            imagem_recortada = imagem_colorida[y:y+h, x:x+w]
+            img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
 
-            #Escrever imagem para diretório
-            caminho_recortada_output = os.path.join(output_recortada, f"{name}_{contador}.{ext}")
-            cv.imwrite(filename=caminho_recortada_output, img=imagem_recortada)
+            caminho_output = os.path.join(output, f"{name}_{contador}.{ext}")
 
-#DLIB
-previsor_formato = dlib.shape_predictor(modelo_dlib) #Importa o previsor de formato dlib
-detector_facial = dlib.get_frontal_face_detector()
+            try:
+                dets = detector_facial(img, 1) #Detectar rostos:
+                faces = dlib.full_object_detections()  #Prever formato facial:
 
-for diretorio, _, arquivos in os.walk(output_recortada): #Identifica todos os arquivos no diretorio
-    for arquivo in arquivos:
-        caminho_imagem = (os.path.join(diretorio, arquivo))
-        print("Alinhamento facial DLIB", caminho_imagem)
+                for detection in dets:
+                    faces.append(previsor_formato(img, detection))
 
-        #Configurar nome:
-        name = caminho_imagem.split("\\")
-        name = name[-1].split(".")[-2]
-        ext = caminho_imagem.split(".")[-1]
+                images = dlib.get_face_chips(img, faces, size=1000)
 
-        try:
-            #Importar detector facial
-            img = dlib.load_rgb_image(caminho_imagem)
-            dets = detector_facial(img, 1) #Detectar rostos:
+                for image in images:
+                    image_cvt = cv.cvtColor(image, cv.COLOR_RGB2BGR)
+                    cv.imwrite(caminho_output, image_cvt)
+            except:
+                print(f"Nenhuma face detectada em {name}")
 
-            faces = dlib.full_object_detections()  #Prever formato facial:
-            for detection in dets:
-                faces.append(previsor_formato(img, detection))
-
-            caminho_imagem_alinhada_saida = os.path.join(output_alinhada, arquivo) #Exportar imagem alinhada
-            images = dlib.get_face_chips(img, faces, size=1000)
-
-            for image in images:
-                img_cinza = cv.cvtColor(image, cv.COLOR_BGR2GRAY) #Converter imagem em tons de cinza
-                eq = cv.equalizeHist(img_cinza)
-                cv.imwrite(caminho_imagem_alinhada_saida, eq)
-
-        except:
-            print(f"Exceção: {name}")
-            lst.append(arquivo)
-
-tempo_final = time.perf_counter() #Tempo final
-variacao_tempo = tempo_final-tempo_inicial #Calcular tempo de execução
-
+tempo = perf_counter()
 with open('time-log.txt', 'w') as f: #Exportar tempo em arquivo de txt
-    f.write(str(variacao_tempo))
-
-df = pd.DataFrame(lst, columns=["Excecoes"]) #Exportar exceções em tabela
-df.to_csv(path_or_buf="excecoes.csv")
+    f.write(str(tempo))
