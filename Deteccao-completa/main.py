@@ -3,6 +3,7 @@ import dlib
 from time import perf_counter
 import os
 from rmn import RMN
+import pandas as pd
 
 #Caminhos
 input = "input"
@@ -15,6 +16,8 @@ opencv_detec_facial = cv.CascadeClassifier(modelo_opencv) #Importa o modelo de d
 previsor_formato = dlib.shape_predictor(modelo_dlib) #Importa o previsor de formato dlib
 detector_facial = dlib.get_frontal_face_detector()
 rmn = RMN()
+
+df = pd.DataFrame(columns = ["Imagem", "Expressão"])
 
 for diretorio, _, arquivos in os.walk(input): #Identifica todos os arquivos no diretorio
     for arquivo in arquivos:
@@ -34,6 +37,7 @@ for diretorio, _, arquivos in os.walk(input): #Identifica todos os arquivos no d
         
         for (x, y, w, h) in faces: #Recortar imagens detectadas
             contador = contador+1
+            name = f"{name}_{contador}"
             imagem_recortada = imagem_colorida[y:y+h, x:x+w]
             img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
 
@@ -48,10 +52,14 @@ for diretorio, _, arquivos in os.walk(input): #Identifica todos os arquivos no d
 
                 for image in images:
                     result = rmn.detect_emotion_for_single_face_image(img)
-                    fex = f"{name} = {result[0]}"
+                    fex = result[0]
+                    print(name,"=",fex)
+                    df.loc[df.shape[0]] = [name, fex]
                     
             except:
-                print(f"Nenhuma face detectada em {name}")
+                print(name, "= indetectada")
+
+df.to_csv(path_or_buf="fex.csv")
 
 tempo = perf_counter()
 with open('time-log.txt', 'w') as f: #Exportar tempo em arquivo de txt
