@@ -1,6 +1,5 @@
 import cv2 as cv
 import dlib
-from time import perf_counter
 import os
 from rmn import RMN
 import pandas as pd
@@ -11,12 +10,13 @@ output = "output"
 modelo_opencv = "haarcascade_frontalface_default.xml"
 modelo_dlib = "shape_predictor_5_face_landmarks.dat"
 
-#Modelos de deteccao
+#Inicializadores
 opencv_detec_facial = cv.CascadeClassifier(modelo_opencv) #Importa o modelo de detecção opencv
 previsor_formato = dlib.shape_predictor(modelo_dlib) #Importa o previsor de formato dlib
 detector_facial = dlib.get_frontal_face_detector()
 rmn = RMN()
 
+#Config Documento CSV
 df = pd.DataFrame(columns = ["Imagem", "Expressão"])
 
 for diretorio, _, arquivos in os.walk(input): #Identifica todos os arquivos no diretorio
@@ -47,20 +47,14 @@ for diretorio, _, arquivos in os.walk(input): #Identifica todos os arquivos no d
 
                 for detection in dets:
                     faces.append(previsor_formato(img, detection))
-
                 images = dlib.get_face_chips(img, faces, size=1000)
 
                 for image in images:
                     result = rmn.detect_emotion_for_single_face_image(img)
                     fex = result[0]
                     print(name,"=",fex)
-                    df.loc[df.shape[0]] = [name, fex]
-                    
+                    df.loc[df.shape[0]] = [name, fex]  
             except:
                 print(name, "= indetectada")
 
 df.to_csv(path_or_buf="fex.csv")
-
-tempo = perf_counter()
-with open('time-log.txt', 'w') as f: #Exportar tempo em arquivo de txt
-    f.write(str(tempo))
