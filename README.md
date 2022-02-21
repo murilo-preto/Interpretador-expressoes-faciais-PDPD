@@ -13,12 +13,12 @@ Modelos de detecção utilizados:
 
 --------------------------------------------------------------------------
 
-Bibliotecas utilizadas: Pandas, Time, Socket, Pickle, Random
+Bibliotecas utilizadas:
 
-Pandas: Organização e análise de dados.
-Time: Benchmark do tempo de processamento.
-Socket: Comunicação de soquete entre diferentes computadores.
-Pickle: Compressão de dados.
-Random: Sorteamento de dados para simulação de funcionamento.
+  1. Pandas: Organização e análise de dados.
+  2. Time: Benchmark do tempo de processamento.
+  3. Socket: Comunicação de soquete entre diferentes computadores.
+  4. Pickle: Compressão de dados.
+  5. Random: Simulações.
 
 --------------------------------------------------------------------------
