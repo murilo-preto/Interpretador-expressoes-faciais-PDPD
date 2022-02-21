@@ -6,9 +6,7 @@ Interpretador de expressões faciais em comunicação a distância (Projeto PDPD
 Modelos de detecção utilizados:
 
   1. OpenCV: Haar Cascade -- Detecção facial.
-
   2. DLIB: 3 Point facial shape predictor -- Alinhamento facial.
-
   3. Residual Masking Network: Single face detector -- Detecção da expressão facial.
 
 --------------------------------------------------------------------------
