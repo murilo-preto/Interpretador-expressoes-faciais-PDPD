@@ -1,10 +1,3 @@
-"""
-Interpreta expressões faciais, escrevendo-as para um dicionário, contendo
-o nome do usuário como chave e sua expressão como valor.
-
-user:fex
-"""
-
 ################################ Socket config ################################
 import socket
 from pickle import dumps
@@ -56,5 +49,3 @@ while True:
     print(dict)
 
     send_dict(header_len, dict)
-    
-    sleep(1)
