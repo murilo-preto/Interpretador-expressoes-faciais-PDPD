@@ -8,6 +8,17 @@ import cv2 as cv
 import dlib
 from rmn import RMN
 
+#### CAMINHOS ####
+opencv_path = "haarcascade_frontalface_default.xml"
+opencv_modelo = cv.CascadeClassifier(opencv_path)
+
+dlib_path = "shape_predictor_5_face_landmarks.dat"
+dlib_previsor_formato = dlib.shape_predictor(dlib_path) #Importa o previsor de formato dlib
+dlib_detector_facial = dlib.get_frontal_face_detector()
+
+rmn = RMN()
+#### CAMINHOS ####
+
 
 #### SOCKET CONFIG ####
 header_len = 10
@@ -25,9 +36,10 @@ def conect_server(): #Conectar ao servidor
 
         l_conect_status['text'] = "Status: Conectado"
         l_conect_status['foreground'] = 'green'
+        b_init_envio_dados['state'] = tk.ACTIVE
         
     except:
-        None
+        print("Não foi possível conectar ao servidor.")
 
 
 def send_dict(header_len, dict): #Converter dict e enviar
@@ -50,61 +62,41 @@ def send_type(type): #Enviar tipo de api
 
 def init_enviar_dados(): #Detectar fex e enviar
     send_type("interpretador")
-    
-    ## Caminhos ##
-    opencv_path = "haarcascade_frontalface_default.xml"
-    opencv_modelo = cv.CascadeClassifier(opencv_path)
-
-    dlib_path = "shape_predictor_5_face_landmarks.dat"
-    dlib_previsor_formato = dlib.shape_predictor(dlib_path) #Importa o previsor de formato dlib
-    dlib_detector_facial = dlib.get_frontal_face_detector()
-
-    rmn = RMN()
-    #---------------------#
 
     user = str(e_user.get())
     fex_dict = {}
-    s_end_detection = True
 
     webcam = cv.VideoCapture(0)
-
+    
     while True:
         ret, imagem_colorida = webcam.read()
 
-        if ret == True:
-            if s_end_detection == False:
-                webcam.release()
-                cv.destroyAllWindows()
-                break
+        imagem_cinza = cv.cvtColor(imagem_colorida, cv.COLOR_BGR2GRAY)
 
-            imagem_cinza = cv.cvtColor(imagem_colorida, cv.COLOR_BGR2GRAY)
+        faces = opencv_modelo.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=4)
+        
+        for (x, y, w, h) in faces: #Recortar imagens detectadas
+                imagem_recortada = imagem_colorida[y:y+h, x:x+w]
+                img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
+                try:
+                    dets = dlib_detector_facial(img, 1) #Detectar rostos:
+                    faces = dlib.full_object_detections()  #Prever formato facial:
 
-            faces = opencv_modelo.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=4)
-            
-            for (x, y, w, h) in faces: #Recortar imagens detectadas
-                    imagem_recortada = imagem_colorida[y:y+h, x:x+w]
-                    img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
-                    try:
-                        dets = dlib_detector_facial(img, 1) #Detectar rostos:
-                        faces = dlib.full_object_detections()  #Prever formato facial:
+                    for detection in dets:
+                        faces.append(dlib_previsor_formato(img, detection))
+                        images = dlib.get_face_chips(img, faces, size=500)
 
-                        for detection in dets:
-                            faces.append(dlib_previsor_formato(img, detection))
-                            images = dlib.get_face_chips(img, faces, size=500)
+                        for image in images:
+                            preprocessed_image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
 
-                            for image in images:
-                                preprocessed_image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
+                            result = rmn.detect_emotion_for_single_face_image(preprocessed_image)
+                            fex = result[0]
+                            fex_dict[user] = fex  
 
-                                cv.imshow("img", preprocessed_image)
-
-                                result = rmn.detect_emotion_for_single_face_image(preprocessed_image)
-                                fex = result[0]
-                                fex_dict[user] = fex  
-
-                                l_fex['text'] = fex_dict
-                                send_dict(header_len, fex_dict)
-                    except:
-                        None        
+                            l_fex['text'] = fex_dict
+                            send_dict(header_len, fex_dict)
+                except:
+                    None     
 
 
 def retrieve_user():
@@ -117,19 +109,12 @@ def retrieve_user():
 
         e_user['state'] = tk.DISABLED
         b_registrar_user['state'] = tk.DISABLED
-
-
-def return_false(var):
-    var = False
-    return var
-
-
 #### DEF ####
 
 
 #### INTERFACE ####
 root = tk.Tk()
-root.geometry("300x300")
+root.geometry("400x400")
 root.resizable(False, False)
 root.title('Sistema interpretador')
 
@@ -174,14 +159,6 @@ b_init_envio_dados.pack(fill='x', expand=True)
 l_fex = tk.Label(frame_interp, text="Aguardando detecção")
 l_fex.pack(fill='x', expand=True)
 #---------------------#
-
-
-## Parar detecção ##
-s_end_detection = True
-b_stop_detec = tk.Button(frame_interp, text="Parar detecção", command=return_false(s_end_detection), state=tk.DISABLED)
-b_stop_detec.pack(fill='x', expand=True)
-#---------------------#
-
 
 root.mainloop()
 #### INTERFACE ####
