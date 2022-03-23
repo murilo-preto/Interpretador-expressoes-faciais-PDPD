@@ -1,8 +1,6 @@
 import cv2 as cv
 import dlib
-from numpy import empty
 from rmn import RMN
-from time import sleep
 
 ############# Iniciadores/ Modelos #############
 opencv_path = "haarcascade_frontalface_default.xml"
