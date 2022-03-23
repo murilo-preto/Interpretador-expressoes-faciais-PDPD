@@ -7,6 +7,8 @@ from matplotlib.pyplot import fill
 import cv2 as cv
 import dlib
 from rmn import RMN
+import threading
+
 
 #### CAMINHOS ####
 opencv_path = "haarcascade_frontalface_default.xml"
@@ -33,10 +35,12 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 def conect_server(): #Conectar ao servidor
     try:
         client_socket. connect((ip, port))
+        send_type("interpretador")
 
         l_conect_status['text'] = "Status: Conectado"
         l_conect_status['foreground'] = 'green'
         b_init_envio_dados['state'] = tk.ACTIVE
+        b_parar_fex['state'] = tk.ACTIVE
         
     except:
         print("Não foi possível conectar ao servidor.")
@@ -61,7 +65,7 @@ def send_type(type): #Enviar tipo de api
 
 
 def init_enviar_dados(): #Detectar fex e enviar
-    send_type("interpretador")
+    l_fex['text'] = 'Preparando detecção, aguarde'
 
     user = str(e_user.get())
     fex_dict = {}
@@ -69,34 +73,53 @@ def init_enviar_dados(): #Detectar fex e enviar
     webcam = cv.VideoCapture(0)
     
     while True:
-        ret, imagem_colorida = webcam.read()
+        global stop_fex
+        if stop_fex:
+            break
 
-        imagem_cinza = cv.cvtColor(imagem_colorida, cv.COLOR_BGR2GRAY)
+        emotion_dict = fex_detection(user, fex_dict, webcam)
+        if emotion_dict != None:
+            send_dict(header_len, emotion_dict)
 
-        faces = opencv_modelo.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=4)
-        
-        for (x, y, w, h) in faces: #Recortar imagens detectadas
-                imagem_recortada = imagem_colorida[y:y+h, x:x+w]
-                img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
-                try:
-                    dets = dlib_detector_facial(img, 1) #Detectar rostos:
-                    faces = dlib.full_object_detections()  #Prever formato facial:
 
-                    for detection in dets:
-                        faces.append(dlib_previsor_formato(img, detection))
-                        images = dlib.get_face_chips(img, faces, size=500)
+def fex_detection(user, fex_dict, webcam):
+    ret, imagem_colorida = webcam.read()
 
-                        for image in images:
-                            preprocessed_image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
+    imagem_cinza = cv.cvtColor(imagem_colorida, cv.COLOR_BGR2GRAY)
 
-                            result = rmn.detect_emotion_for_single_face_image(preprocessed_image)
-                            fex = result[0]
-                            fex_dict[user] = fex  
+    faces = opencv_modelo.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=4)
+    
+    for (x, y, w, h) in faces: #Recortar imagens detectadas
+            imagem_recortada = imagem_colorida[y:y+h, x:x+w]
+            img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
+            try:
+                dets = dlib_detector_facial(img, 1) #Detectar rostos:
+                faces = dlib.full_object_detections()  #Prever formato facial:
 
-                            l_fex['text'] = fex_dict
-                            send_dict(header_len, fex_dict)
-                except:
-                    None     
+                for detection in dets:
+                    faces.append(dlib_previsor_formato(img, detection))
+                    images = dlib.get_face_chips(img, faces, size=500)
+
+                    for image in images:
+                        preprocessed_image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
+
+                        result = rmn.detect_emotion_for_single_face_image(preprocessed_image)
+                        fex = result[0]
+                        fex_dict[user] = fex  
+
+                        l_fex['text'] = (user,":",fex)
+
+                        return fex_dict
+            except:
+                None    
+
+
+def start_tfex():
+    t_fex.start()
+
+def end_tfex():
+    global stop_fex
+    stop_fex = True
 
 
 def retrieve_user():
@@ -152,13 +175,21 @@ l_conect_status.pack(fill='x', expand=True, pady=(0,25))
 #---------------------#
 
 
-## Iniciar envio de dados / Status ##
-b_init_envio_dados = tk.Button(frame_interp, text="Iniciar envio de dados", command=init_enviar_dados, state=tk.DISABLED)
+## Iniciar fex / Parar fex / Status ##
+b_init_envio_dados = tk.Button(frame_interp, text="Iniciar detecção de expressão facial", command=start_tfex, state=tk.DISABLED)
 b_init_envio_dados.pack(fill='x', expand=True)
 
-l_fex = tk.Label(frame_interp, text="Aguardando detecção")
+stop_fex = False
+b_parar_fex = tk.Button(frame_interp, text="Parar detecção de expressão facial", command=end_tfex, state=tk.DISABLED)
+b_parar_fex.pack(fill='x', expand=True)
+
+l_fex = tk.Label(frame_interp, text="Aguardando início de detecção")
 l_fex.pack(fill='x', expand=True)
 #---------------------#
+
+
+
+t_fex = threading.Thread(target=init_enviar_dados, args=())
 
 root.mainloop()
 #### INTERFACE ####
