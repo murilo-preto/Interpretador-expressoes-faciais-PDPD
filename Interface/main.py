@@ -40,7 +40,6 @@ def conect_server(): #Conectar ao servidor
         l_conect_status['text'] = "Status: Conectado"
         l_conect_status['foreground'] = 'green'
         b_init_envio_dados['state'] = tk.ACTIVE
-        b_parar_fex['state'] = tk.ACTIVE
         
     except:
         print("Não foi possível conectar ao servidor.")
@@ -65,7 +64,10 @@ def send_type(type): #Enviar tipo de api
 
 
 def init_enviar_dados(): #Detectar fex e enviar
+    l_fex['background'] = 'black'
+    l_fex['foreground'] = 'yellow'
     l_fex['text'] = 'Preparando detecção, aguarde'
+    b_parar_fex['state'] = tk.ACTIVE
 
     user = str(e_user.get())
     fex_dict = {}
@@ -107,6 +109,8 @@ def fex_detection(user, fex_dict, webcam):
                         fex = result[0]
                         fex_dict[user] = fex  
 
+                        l_fex['background'] = 'white'
+                        l_fex['foreground'] = 'green'
                         l_fex['text'] = (user,":",fex)
 
                         return fex_dict
@@ -132,6 +136,11 @@ def retrieve_user():
 
         e_user['state'] = tk.DISABLED
         b_registrar_user['state'] = tk.DISABLED
+
+
+def closing_protocol():
+    end_tfex()
+    root.destroy()
 #### DEF ####
 
 
@@ -191,5 +200,6 @@ l_fex.pack(fill='x', expand=True)
 
 t_fex = threading.Thread(target=init_enviar_dados, args=())
 
+root.protocol("WM_DELETE_WINDOW", closing_protocol)
 root.mainloop()
 #### INTERFACE ####
