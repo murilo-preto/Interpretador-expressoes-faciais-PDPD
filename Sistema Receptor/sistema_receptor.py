@@ -28,6 +28,9 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #### INIT GRAPH ####
 f = Figure(figsize=(5,4), dpi=100)
 a = f.add_subplot(111)
+fex = {}
+emotions_counter = {'neutral': 0, 'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0}
+clear_counter=0
 
 
 #### DEF ####
@@ -66,22 +69,23 @@ def conect_server():
         print("Não foi possível conectar ao servidor.")
 
 
-fex = {}
-emotions_counter = {'neutral': 0, 'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0}
 def animate(i): #Animar gráfico
     
+    global clear_counter
+    global fex
+
+    clear_counter += 1
+    if clear_counter > 10:
+        fex = {}
+        clear_counter=0
+
     fex_dict = recv_dict(client_socket)
     if fex_dict != False:
         emotions_counter.update({'neutral': 0, 'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0})
 
         fex.update(fex_dict)
-
-        print(fex)
-
         emotions = fex.values()
         emotions_counter.update(Counter(emotions))
-
-        print(emotions_counter)
 
     keys = emotions_counter.keys()
     values = emotions_counter.values()
