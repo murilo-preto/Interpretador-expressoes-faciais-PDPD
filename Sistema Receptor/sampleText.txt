@@ -1,7 +1,0 @@
-user0, Neutral
-user1, Angry
-user2, Disgust
-user3, Fear
-user4, Happy
-user5, Sad
-user6, Surprise
