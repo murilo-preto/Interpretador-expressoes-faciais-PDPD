@@ -1,7 +1,6 @@
 import tkinter as tk
 import socket
 from pickle import dumps
-from tkinter.font import NORMAL
 from tkinter import ttk
 from matplotlib.pyplot import fill
 import cv2 as cv
@@ -19,7 +18,6 @@ dlib_previsor_formato = dlib.shape_predictor(dlib_path) #Importa o previsor de f
 dlib_detector_facial = dlib.get_frontal_face_detector()
 
 rmn = RMN()
-#### CAMINHOS ####
 
 
 #### SOCKET CONFIG ####
@@ -28,7 +26,6 @@ ip = "127.0.0.1"
 port = 1500
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#### SOCKET CONFIG ####
 
 
 #### DEF ####
@@ -141,10 +138,10 @@ def retrieve_user():
 def closing_protocol():
     end_tfex()
     root.destroy()
-#### DEF ####
 
 
 #### INTERFACE ####
+## Root ##
 root = tk.Tk()
 root.geometry("400x400")
 root.resizable(False, False)
@@ -154,52 +151,46 @@ root.title('Sistema interpretador')
 ## Frame ##
 frame_interp = ttk.Frame(root)
 frame_interp.pack(padx=10, fill='x', expand=True)
-#---------------------#
 
 
 ## Title ##
 l_title = tk.Label(frame_interp, text="Sistema Interpretador",font=("Times 20"))
 l_title.pack(fill='x', expand=True, pady=(0,25))
-#---------------------#
 
 
 ## Username entry ##
 l_user_entry = tk.Label(frame_interp, text="Insira seu nome de usuário:")
 l_user_entry.pack(fill='x', expand=True)
 
-e_user = tk.Entry(frame_interp)
+e_user = ttk.Entry(frame_interp)
 e_user.pack(fill='x', expand=True)
 
-b_registrar_user = tk.Button(frame_interp, text="Registrar nome", command=retrieve_user)
+b_registrar_user = ttk.Button(frame_interp, text="Registrar nome", command=retrieve_user)
 b_registrar_user.pack(fill='x', expand=True, pady=(0,25))
-#---------------------#
 
 
 ## Conectar / Status ##
-b_conectar_servidor = tk.Button(frame_interp, text="Conectar ao servidor", command=conect_server, state=tk.DISABLED)
+b_conectar_servidor = ttk.Button(frame_interp, text="Conectar ao servidor", command=conect_server, state=tk.DISABLED)
 b_conectar_servidor.pack(fill='x', expand=True)
 
 l_conect_status = tk.Label(frame_interp, text="Status: Não conectado", foreground='red')
 l_conect_status.pack(fill='x', expand=True, pady=(0,25))
-#---------------------#
 
 
 ## Iniciar fex / Parar fex / Status ##
-b_init_envio_dados = tk.Button(frame_interp, text="Iniciar detecção de expressão facial", command=start_tfex, state=tk.DISABLED)
+b_init_envio_dados = ttk.Button(frame_interp, text="Iniciar detecção de expressão facial", command=start_tfex, state=tk.DISABLED)
 b_init_envio_dados.pack(fill='x', expand=True)
 
 stop_fex = False
-b_parar_fex = tk.Button(frame_interp, text="Parar detecção de expressão facial", command=end_tfex, state=tk.DISABLED)
+b_parar_fex = ttk.Button(frame_interp, text="Parar detecção de expressão facial", command=end_tfex, state=tk.DISABLED)
 b_parar_fex.pack(fill='x', expand=True)
 
 l_fex = tk.Label(frame_interp, text="Aguardando início de detecção")
 l_fex.pack(fill='x', expand=True)
-#---------------------#
 
-
-
+## Loop settings // Threading ##
 t_fex = threading.Thread(target=init_enviar_dados, args=())
 
 root.protocol("WM_DELETE_WINDOW", closing_protocol)
+
 root.mainloop()
-#### INTERFACE ####
