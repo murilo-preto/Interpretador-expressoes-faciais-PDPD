@@ -70,7 +70,6 @@ def conect_server():
 
 
 def animate(i): #Animar gráfico
-    
     global clear_counter
     global fex
 
@@ -82,17 +81,16 @@ def animate(i): #Animar gráfico
     fex_dict = recv_dict(client_socket)
     if fex_dict != False:
         emotions_counter.update({'neutral': 0, 'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0})
-
         fex.update(fex_dict)
-        emotions = fex.values()
-        emotions_counter.update(Counter(emotions))
+
+    emotions = fex.values()
+    emotions_counter.update(Counter(emotions))
 
     keys = emotions_counter.keys()
     values = emotions_counter.values()
 
     a.clear()
     a.bar(keys, values)
-
 
 #### GUI ####
 LARGE_FONT = ('Times New Roman', 20) #Fonte para títulos
@@ -112,7 +110,7 @@ class SistemaReceptor(tk.Tk): #Root
 
         self.frames = {}
 
-        for F in (Page_start, Page_1, Page_2):
+        for F in (Page_start, Page_1):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -143,9 +141,6 @@ class Page_start(tk.Frame): #Página inicial
         button1 = ttk.Button(self, text="Gráfico em barra", command=lambda: controller.show_frame(Page_1))
         button1.pack(fill=tk.BOTH, expand=True, padx=(10,10), pady=(0,10))
 
-        button2 = ttk.Button(self, text="Tela 2", command=lambda: controller.show_frame(Page_2))
-        button2.pack(fill=tk.BOTH, expand=True, padx=(10,10), pady=(10,10))
-
 
 class Page_1(tk.Frame): #Gráfico em barra
     def __init__(self, parent, controller):
@@ -160,19 +155,6 @@ class Page_1(tk.Frame): #Gráfico em barra
 
         button1 = ttk.Button(self, text="Retornar: Tela Inicial", command=lambda: controller.show_frame(Page_start))
         button1.pack(fill=tk.BOTH, expand=True, padx=(10,10), pady=(10,10))
-
-
-class Page_2(tk.Frame): #Placeholder
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-
-        title = ttk.Label(self, text='Tela 2', font=LARGE_FONT)
-        title.pack(padx=(10,10), pady=(10,10))
-
-        button1 = ttk.Button(self, text="Retornar: Tela Inicial", command=lambda: controller.show_frame(Page_start))
-        button1.pack()
-
-
 
 app = SistemaReceptor()
 ani = animation.FuncAnimation(f,animate, interval=1000) #Intervalo de atualização do gráfico
