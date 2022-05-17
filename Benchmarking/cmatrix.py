@@ -13,10 +13,11 @@ cf_matrix = confusion_matrix(fex_esperada, fex_detectada, labels=["angry", "disg
 
 print(cf_matrix)
 
-ax = sns.heatmap(cf_matrix/np.sum(cf_matrix), annot=True, fmt='.1%', cmap='Blues')
+fig, ax = plt.subplots(figsize=(7,7))
+ax = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='d', vmin=0, vmax=80, cbar=False)
 
-ax.set_title('OpenCV + DLIB + RMN\n');
-ax.set_xlabel('Expressões detectadas\n')
+ax.set_title('Método: OpenCV + DLIB + RMN\nDataset: CK+\n');
+ax.set_xlabel('\nExpressões detectadas')
 ax.set_ylabel('Expressões reais\n');
 
 ax.xaxis.set_ticklabels(["Raiva", "Desgosto", "Medo", "Felicidade", "Tristeza", "Surpresa", "Neutro"])

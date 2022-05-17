@@ -58,11 +58,13 @@ for dir_emotion, _, arquivos in os.walk(emotion_label_folder):
                             if 'Thumbs.db' in list:
                                 list.remove('Thumbs.db')
 
-                            img_emotion = list[-1]
-                            img_folder_1 = img_emotion.strip()[0:4]
-                            img_folder_2 = img_emotion.strip()[5:8]
+                            img_emotion_1 = list[0]
+                            img_emotion_2 = list[-1]
 
-                            caminho_imagem = (os.path.join(faces_folder, img_folder_1, img_folder_2, img_emotion))
+                            img_folder_1 = img_emotion_2.strip()[0:4]
+                            img_folder_2 = img_emotion_2.strip()[5:8]
+
+                            caminho_imagem = (os.path.join(faces_folder, img_folder_1, img_folder_2, img_emotion_2))
 
                             imagem_colorida = cv.imread(caminho_imagem)
                             imagem_cinza = imagem_colorida
@@ -73,7 +75,7 @@ for dir_emotion, _, arquivos in os.walk(emotion_label_folder):
 
                             #Configurar nome:
                             contador = 0
-                            name = img_emotion
+                            name = img_emotion_2
                             ext = caminho_imagem.split(".")[-1]
                             
                             for (x, y, w, h) in faces: #Recortar imagens detectadas
@@ -95,7 +97,47 @@ for dir_emotion, _, arquivos in os.walk(emotion_label_folder):
                                         fex = result[0]
                                         df.loc[df.shape[0]] = [name, emotion, fex]  
 
-                                        print(name, emotion, fex)
+                                        print(name, emotion, fex)                      
+                                except:
+                                    None
+
+                            img_folder_1 = img_emotion_1.strip()[0:4]
+                            img_folder_2 = img_emotion_1.strip()[5:8]
+
+                            caminho_imagem = (os.path.join(faces_folder, img_folder_1, img_folder_2, img_emotion_1))
+
+                            imagem_colorida = cv.imread(caminho_imagem)
+                            imagem_cinza = imagem_colorida
+                            #imagem_cinza = cv.cvtColor(imagem_colorida, cv.COLOR_BGR2GRAY)
+
+                            #Detectar faces:
+                            faces = opencv_detec_facial.detectMultiScale (imagem_cinza, scaleFactor=1.1, minNeighbors=4, minSize=(50,50))
+
+                            #Configurar nome:
+                            contador = 0
+                            name = img_emotion_1
+                            ext = caminho_imagem.split(".")[-1]
+                            
+                            for (x, y, w, h) in faces: #Recortar imagens detectadas
+                                contador = contador+1
+                                name = f"{name}_{contador}"
+                                imagem_recortada = imagem_colorida[y:y+h, x:x+w]
+                                img = cv.cvtColor(imagem_recortada, cv.COLOR_BGR2RGB)
+
+                                try:
+                                    dets = detector_facial(img, 1) #Detectar rostos:
+                                    faces = dlib.full_object_detections()  #Prever formato facial:
+
+                                    for detection in dets:
+                                        faces.append(previsor_formato(img, detection))
+                                    images = dlib.get_face_chips(img, faces, size=1000)
+
+                                    for image in images:
+                                        result = rmn.detect_emotion_for_single_face_image(img)
+                                        fex = result[0]
+                                        df.loc[df.shape[0]] = [name, "neutral", fex]  
+
+                                        print(name, "neutral", fex)
                                 except:
                                     None
 
