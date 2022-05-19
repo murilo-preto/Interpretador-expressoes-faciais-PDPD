@@ -4,13 +4,14 @@ import select
 
 ################################ Server config ################################
 header_len = 10
-ip = "127.0.0.1"
+hostname = socket.gethostname()
+local_ip = socket. gethostbyname(hostname)
 port = 1500
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-server_socket.bind((ip, port))
+server_socket.bind((local_ip, port))
 server_socket.listen(5)
 
 sockets_list = [server_socket]
@@ -19,7 +20,7 @@ clients = {}
 interpretador_list = []
 receptor_list = []
 
-print(f'Esperando conexões em {socket.gethostname()}:{port}')
+print(f'Esperando conexões em {local_ip}:{port}')
 
 
 ################################ Funções ################################
@@ -109,8 +110,8 @@ while True:
 
             print(fex_dict)
 
-            for notified_socket in receptor_list:
-                send_dict(header_len, fex_dict, notified_socket)
+            for receptor in receptor_list:
+                send_dict(header_len, fex_dict, receptor)
     
     for notified_socket in x_list:
         sockets_list.remove(notified_socket)

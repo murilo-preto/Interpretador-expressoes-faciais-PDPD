@@ -20,7 +20,7 @@ import pickle
 
 #### SOCKET CONFIG ####
 header_len = 10
-ip = "127.0.0.1"
+ip = "192.168.0.2"
 port = 1500
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -78,19 +78,25 @@ def animate(i): #Animar gráfico
         fex = {}
         clear_counter=0
 
-    fex_dict = recv_dict(client_socket)
-    if fex_dict != False:
-        emotions_counter.update({'neutral': 0, 'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0})
-        fex.update(fex_dict)
+    while True:
+        fex_dict = recv_dict(client_socket)
 
-    emotions = fex.values()
-    emotions_counter.update(Counter(emotions))
+        if fex_dict != False:
+            emotions_counter.update({'neutral': 0, 'angry': 0, 'disgust': 0, 'fear': 0, 'happy': 0, 'sad': 0, 'surprise': 0})
+            fex.update(fex_dict)
 
-    keys = emotions_counter.keys()
-    values = emotions_counter.values()
+            emotions = fex.values()
+            emotions_counter.update(Counter(emotions))
 
-    a.clear()
-    a.bar(keys, values)
+            keys = emotions_counter.keys()
+            values = emotions_counter.values()
+
+            a.clear()
+            a.bar(keys, values)
+        else:
+            break
+
+
 
 #### GUI ####
 LARGE_FONT = ('Times New Roman', 20) #Fonte para títulos
