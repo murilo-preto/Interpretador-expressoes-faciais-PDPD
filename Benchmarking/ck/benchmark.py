@@ -1,20 +1,9 @@
-"""
-Nota: Código de emoções do CK+ dataset:
-    0=neutral
-    1=anger
-    2=contempt
-    3=disgust
-    4=fear
-    5=happy
-    6=sadness
-    7=surpise
-"""
-
 import cv2 as cv
 import dlib
 import os
 from rmn import RMN
 import pandas as pd
+from time import perf_counter
 
 emotion_label_folder = "CK+\Emotion_labels\Emotion"
 faces_folder = "CK+\extended-cohn-kanade-images\cohn-kanade-images"
@@ -39,6 +28,7 @@ num2emotion = {
     "7": "surprise"
 }
 
+tempo_inicial = perf_counter()
 for dir_emotion, _, arquivos in os.walk(emotion_label_folder):
     if arquivos != []:
         emotion_txt = os.path.join(dir_emotion,arquivos[0])
@@ -140,5 +130,10 @@ for dir_emotion, _, arquivos in os.walk(emotion_label_folder):
                                         print(name, "neutral", fex)
                                 except:
                                     None
+
+tempo_final = perf_counter()
+tempo = tempo_final-tempo_inicial
+with open('time-log.txt', 'w') as f: #Exportar tempo em arquivo de txt
+    f.write(str(tempo))
 
 df.to_csv(path_or_buf="fex.csv")

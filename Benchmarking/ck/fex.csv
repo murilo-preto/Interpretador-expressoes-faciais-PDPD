@@ -48,13 +48,13 @@
 46,S032_001_00000022.png_1,surprise,surprise
 47,S032_001_00000001.png_1,neutral,neutral
 48,S032_003_00000017.png_1,angry,angry
-49,S032_003_00000001.png_1,neutral,neutral
+49,S032_003_00000001.png_1_2,neutral,neutral
 50,S032_004_00000014.png_1,fear,angry
 51,S032_004_00000001.png_1,neutral,neutral
 52,S032_005_00000016.png_1,disgust,disgust
 53,S032_005_00000001.png_1,neutral,angry
 54,S032_006_00000016.png_1_2,happy,happy
-55,S032_006_00000001.png_1_2,neutral,neutral
+55,S032_006_00000001.png_1,neutral,neutral
 56,S034_001_00000029.png_1,surprise,surprise
 57,S034_001_00000001.png_1,neutral,neutral
 58,S034_003_00000027.png_1,angry,angry
