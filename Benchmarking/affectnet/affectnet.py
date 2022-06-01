@@ -86,7 +86,7 @@ for sublist in img_and_fex:
 tempo_final = perf_counter()
 
 tempo = tempo_final-tempo_inicial
-with open('time-log.txt', 'w') as f: #Exportar tempo em arquivo de txt
+with open('time-log.txt', 'w') as f:
     f.write(str(tempo))
 
 benchmark_df.to_csv(path_or_buf="fex.csv")

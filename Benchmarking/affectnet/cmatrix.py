@@ -14,15 +14,17 @@ cf_matrix = confusion_matrix(fex_esperada, fex_detectada, labels=["angry", "disg
 print(cf_matrix)
 
 fig, ax = plt.subplots(figsize=(7,7))
-ax = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='d', cbar=False)
+
+color = sns.cubehelix_palette(start=2.7, rot=0, dark=.02, light=.98, reverse=False, as_cmap=True)
+ax = sns.heatmap(cf_matrix, annot=True, cmap=color, fmt='d', cbar=False)
 
 ax.set_title('Método: OpenCV + DLIB + RMN\nDataset: Affect NET\n');
 ax.set_xlabel('\nExpressões detectadas')
 ax.set_ylabel('Expressões reais\n');
 
-ax.xaxis.set_ticklabels(["Raiva", "Desgosto", "Medo", "Felicidade", "Tristeza", "Surpresa", "Neutro"])
-ax.yaxis.set_ticklabels(["Raiva", "Desgosto", "Medo", "Felicidade", "Tristeza", "Surpresa", "Neutro"])
+ptbr_fex = ["Raiva", "Desgosto", "Medo", "Felicidade", "Tristeza", "Surpresa", "Neutro"]
 
-#plt.show()
+ax.xaxis.set_ticklabels(ptbr_fex)
+ax.yaxis.set_ticklabels(ptbr_fex)
 
-plt.savefig('cmatrix.png')
+plt.savefig('cmatrix-affectnet.png')
