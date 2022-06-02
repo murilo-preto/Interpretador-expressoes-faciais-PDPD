@@ -4,6 +4,10 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 import numpy as np
 
+database_name = ""
+normalized_d_name = (database_name.lower()).strip()
+metodo = ""
+
 df = pd.read_csv("fex.csv")
 
 fex_esperada = df["FEX-esperada"]
@@ -19,7 +23,7 @@ fig, ax = plt.subplots(figsize=(7,7))
 color = sns.cubehelix_palette(start=2.7, rot=0, dark=.02, light=.98, reverse=False, as_cmap=True)
 ax = sns.heatmap(cf_matrix_normalized, annot=True, cmap=color, fmt='.2f', cbar=False, vmin=.05)
 
-ax.set_title('Método: Residual Masking Network\nDataset: Affect NET\n');
+ax.set_title(f'Método: {metodo}\nDataset: {database_name}\n');
 ax.set_xlabel('\nExpressões detectadas')
 ax.set_ylabel('Expressões reais\n');
 
@@ -28,4 +32,4 @@ ptbr_fex = ["Raiva", "Desgosto", "Medo", "Felicidade", "Tristeza", "Surpresa", "
 ax.xaxis.set_ticklabels(ptbr_fex)
 ax.yaxis.set_ticklabels(ptbr_fex)
 
-plt.savefig('cmatrix-affectnet.png')
+plt.savefig(f'cmatrix-{database_name}.png')
